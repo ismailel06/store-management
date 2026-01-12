@@ -72,3 +72,26 @@ Installed via Composer:
 git clone https://github.com/ismailel06/store-management.git
 cd store-management
 composer install
+```
+
+## Local Environment 
+
+```.env.local
+DATABASE_URL="mysql://user:password@127.0.0.1:3306/store_db"
+```
+
+## Database and Migration
+```bash
+php bin/console doctrine:database:create
+php bin/console doctrine:migrations:migrate
+```
+
+## Run Server
+
+Make sure The Apache & MySQL are running (My Case Xampp) :
+
+```bash
+symfony server:start
+```
+
+
