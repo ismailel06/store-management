@@ -1,0 +1,102 @@
+{% extends 'base.html.twig' %}
+{% block title %}Suppliers{% endblock %}
+
+{% block body %}
+
+{% for label, messages in app.flashes %}
+  {% for message in messages %}
+    <div class="alert alert-{{ label }} mb-3">{{ message }}</div>
+  {% endfor %}
+{% endfor %}
+
+<div class="card shadow-sm p-4 mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0">Pending Supply Requests</h5>
+    <a class="btn btn-outline-secondary" href="{{ path('app_supplier_index') }}">
+        Return to suppliers
+    </a>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Product</th>
+          <th>Supplier</th>
+          <th>Qty</th>
+          <th>Status</th>
+          <th>Requested At</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+      {% for r in pendingRequests %}
+        <tr>
+          <td>{{ r.id }}</td>
+          <td>{{ r.product.name }}</td>
+          <td>{{ r.supplier.name }}</td>
+          <td>{{ r.requestedQty }}</td>
+          <td><span class="badge bg-warning text-dark">Pending</span></td>
+          <td>{{ r.createdAt|date('Y-m-d H:i') }}</td>
+          <td>
+            <form method="post" action="{{ path('app_supply_request_confirm', {id: r.id}) }}" class="d-inline">
+              <button class="btn btn-success btn-sm">
+                <i class="fa-solid fa-check me-1"></i> Confirm
+              </button>
+            </form>
+
+            <form method="post" action="{{ path('app_supply_request_reject', {id: r.id}) }}" class="d-inline ms-1">
+              <button class="btn btn-danger btn-sm">
+                <i class="fa-solid fa-xmark me-1"></i> Reject
+              </button>
+            </form>
+          </td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="7" class="bg-danger text-white bg-opacity-50 text-center">No pending requests.</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-12">
+    <div class="card shadow-sm p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">Supply Reports (Recent)</h5>
+        <span class="text-muted small">Auto updated</span>
+      </div>
+
+      <div class="list-group">
+        {% for r in recentProcessed %}
+          <div class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                  <div class="fw-semibold">
+                    A Supply of <strong>{{ r.requestedQty }}</strong> units of
+                    <strong>" {{ r.product.name }} "</strong> by <strong>" {{ r.supplier.name }} "</strong>
+                    Performed At: <span class="text-muted small">{{ r.updatedAt|date('Y-m-d H:i') }}</span>
+                  </div>
+              </div>
+              <div class="fw-semibold ">
+                {% if r.status == 'Confirmed' %}
+                  <span class="badge bg-success ms-1">Confirmed</span>
+                {% else %}
+                  <span class="badge bg-danger ms-1">Rejected</span>
+                {% endif %}
+              </div>
+          </div>
+        {% else %}
+          <div class="text-muted">No processed supplies yet.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

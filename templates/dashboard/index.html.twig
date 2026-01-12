@@ -1,0 +1,272 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block body %}
+
+<!-- Statistic Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card bg-gradient-primary" style="height:180px;">
+            <i class="bi bi-box-seam"></i>
+            <div>
+                <h5>Total Products</h5>
+                <p class="fs-4"><strong>{{stats.products}}</strong></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card bg-gradient-success" style="height:180px;">
+            <i class="bi bi-check-circle"></i>
+            <div>
+                <h5>In Stock</h5>
+                <p class="fs-4"><strong>{{stats.inStock}}</strong></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card bg-gradient-warning" style="height:180px;">
+            <i class="bi bi-exclamation-triangle"></i>
+            <div>
+                <h5>Low Stock</h5>
+                <p class="fs-4"><strong>{{stats.lowStock}}</strong></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card bg-gradient-danger" style="height:180px;">
+            <i class="bi bi-x-circle"></i>
+            <div>
+                <h5>Out of Stock</h5>
+                <p class="fs-4"><strong>{{stats.outOfStock}}</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Placeholder for Charts -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm p-4">
+            <div class="d-flex justify-content-between mb-2 align-items-center">
+                <h5>Stock Overview</h5>
+                <div class="arrow-icon">
+                    <a href="{{ path('app_stock_index') }}" id="links" class="text-black"><i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            <div style="height:260px;">
+                <canvas id="stockOverviewChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm p-4">
+            <div class="d-flex justify-content-between mb-2 align-items-center">
+                <h5>Category Distribution</h5>
+                <div class="arrow-icon">
+                    <a href="{{ path('app_product_index') }}" id="links" class="text-black"><i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            <div style="height:260px;">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+    <div class="card shadow-sm p-4">
+        <div class="d-flex justify-content-between mb-2 align-items-center">
+            <h5>Suppliers Overview</h5>
+            <div class="arrow-icon">
+                <a href="{{ path('app_supplier_index') }}" id="links" class="text-black"><i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+        <div style="height:260px;">
+            <canvas id="supplierChart"></canvas>
+        </div>
+
+    </div>
+</div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+    <div class="card shadow-sm p-4 finance-card mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="mb-0">Financial Growth</h5>
+                    <div class="text-muted small">Last 7 days vs previous 7 days</div>
+                </div>
+                <div class="finance-icon">
+                <i class="bi bi-currency-dollar"></i>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-end justify-content-between flex-wrap gap-3" >
+                <div>
+                    <div class="text-muted small">Revenue (Last 7 days)</div>
+                    <div class="finance-value">${{ finance.last7|number_format(2, '.', ',') }}</div>
+                </div>
+                <div class="text-end">
+                    <div class="text-muted small">Previous 7 days</div>
+                    <div class="fw-semibold">${{ finance.prev7|number_format(2, '.', ',') }}</div>
+                    {% if finance.growthPercent is null %}
+                        <div class="small text-muted mt-1">No previous data</div>
+                    {% else %}
+                        {% set up = finance.growthPercent >= 0 %}
+                        <div class="mt-1 fw-semibold {{ up ? 'text-success' : 'text-danger' }}">
+                        <i class="bi {{ up ? 'bi-arrow-up-right' : 'bi-arrow-down-right' }}"></i>
+                        {{ finance.growthPercent|number_format(1, '.', ',') }}%
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="card shadow-sm p-4 mb-4">
+            <div class="d-flex justify-content-between mb-2 align-items-center">
+                <h5>Orders Overview</h5>
+                <div class="arrow-icon">
+                    <a href="{{ path('app_reports_index') }}"  class="text-black"><i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            <div style="height:300px;">
+                <canvas id="ordersGrowthChart"></canvas>
+            </div>
+        </div>
+
+        
+    </div>
+    <div class="col-md-6">
+            <div class="card shadow-sm p-4">
+                <div class="d-flex justify-content-between mb-2 align-items-center">
+                    <h5>Recent Activities</h5>
+                    <div class="arrow-icon">
+                        <a href="{{ path('app_reports_index') }}"  class="text-black"><i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="table-responsive bg-white shadow-sm rounded">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                        <tr>
+                        <th>Type</th>
+                        <th>Details</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for r in recentSupply %}
+                            <tr>
+                            <td><span class="badge bg-info">Supply</span></td>
+                            <td>{{ r.product.name }} • {{ r.supplier.name }}</td>
+                            <td>{{ r.status }}</td>
+                            <td>{{ r.updatedAt ? r.updatedAt|date('Y-m-d H:i') : '' }}</td>
+                            </tr>
+                        {% endfor %}
+
+                        {% for o in recentOrders %}
+                            <tr>
+                            <td><span class="badge bg-success">Order</span></td>
+                            <td>#{{ o.id }} • ${{ o.totalAmount|number_format(2,'.',',') }}</td>
+                            <td>{{ o.status }}</td>
+                            <td>{{ o.createdAt ? o.createdAt|date('Y-m-d H:i') : '' }}</td>
+                            </tr>
+                        {% endfor %}
+
+                        {% if recentSupply is empty and recentOrders is empty %}
+                            <tr><td colspan="4" class="text-center text-muted py-4">No recent activity.</td></tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+  const stockLabels = {{ charts.stock.labels|json_encode|raw }};
+  const stockValues = {{ charts.stock.values|json_encode|raw }};
+
+  const catLabels = {{ charts.categories.labels|json_encode|raw }};
+  const catValues = {{ charts.categories.values|json_encode|raw }};
+
+  const supLabels = {{ charts.suppliers.labels|json_encode|raw }};
+  const supValues = {{ charts.suppliers.values|json_encode|raw }};
+
+  const dayLabels = {{ charts.orders.labels|json_encode|raw }};
+  const ordersValues = {{ charts.orders.orders|json_encode|raw }};
+  const revenueValues = {{ charts.orders.revenue|json_encode|raw }};
+
+  const commonOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: true, position: 'bottom' },
+      tooltip: { enabled: true }
+    }
+  };
+
+  new Chart(document.getElementById('stockOverviewChart'), {
+    type: 'bar',
+    data: {
+      labels: stockLabels,
+      datasets: [{ label: 'Quantity', data: stockValues }]
+    },
+    options: {
+      ...commonOptions,
+      scales: {
+        x: { ticks: { maxRotation: 0, autoSkip: true } },
+        y: { beginAtZero: true }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('categoryChart'), {
+    type: 'doughnut',
+    data: {
+      labels: catLabels,
+      datasets: [{ data: catValues }]
+    },
+    options: {
+      ...commonOptions,
+      cutout: '65%'
+    }
+  });
+
+  new Chart(document.getElementById('supplierChart'), {
+    type: 'bar',
+    data: {
+      labels: supLabels,
+      datasets: [{ label: 'Supply Requests', data: supValues }]
+    },
+    options: {
+      ...commonOptions,
+      scales: {
+        x: { ticks: { maxRotation: 0, autoSkip: true } },
+        y: { beginAtZero: true }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('ordersGrowthChart'), {
+    type: 'line',
+    data: {
+      labels: dayLabels,
+      datasets: [
+        { label: 'Orders', data: ordersValues, tension: 0.35 },
+        { label: 'Revenue', data: revenueValues, tension: 0.35 }
+      ]
+    },
+    options: {
+      ...commonOptions,
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+</script>
+{% endblock %}

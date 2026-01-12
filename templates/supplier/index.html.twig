@@ -1,0 +1,88 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Suppliers{% endblock %}
+
+{% block body %}
+
+<div class="card p-4 shadow-sm mb-4">
+  <div class="d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">Supply Requests</h5>
+
+    <a class="btn btn-outline-primary position-relative" href="{{ path('app_supplier_requests') }}">
+      <i class="bi bi-truck me-1"></i> View Supply Requests
+
+      {% if hasNewRequests %}
+        <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
+          <span class="visually-hidden">New requests</span>
+        </span>
+      {% endif %}
+    </a>
+  </div>
+</div>
+
+<div class="card shadow-sm p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">Suppliers</h5>
+
+        <div class="d-flex align-items-center gap-3">
+
+            <a class="btn btn-primary" href="{{ path('app_supplier_new') }}">
+                <i class="fas fa-plus"></i> Add Supplier
+            </a>
+
+            <form class="input-group w-25 flex-grow-1" method="get" action="{{ path('app_supplier_index') }}">
+                <input type="text" name="q" value="{{ q|default('') }}" placeholder="Search for suppliers" class="form-control">
+                <button class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </form>
+
+            <form method="get" action="{{ path('app_supplier_index') }}">
+                <input type="hidden" name="q" value="{{ q|default('') }}">
+
+                <select class="form-select w-auto" name="sort" onchange="this.form.submit()">
+                    <option value="name" {{ sort|default('name') == 'name' ? 'selected' : '' }}>By Name</option>
+                </select>
+            </form>
+
+        </div>
+
+    </div>
+
+    <div class="table-responsive bg-white shadow-sm rounded">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th " class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for supplier in suppliers %}
+                <tr>
+                    <td>{{ supplier.id }}</td>
+                    <td class="fw-semibold">{{ supplier.name }}</td>
+                    <td>
+                        <div class="btn" role="group" aria-label="actions">
+                            <a class="btn btn-warning" href="{{ path('app_supplier_edit', {'id': supplier.id}) }}">
+                                <i class="fas fa-pen-to-square"></i>
+                            </a>
+                             {{ include('supplier/_delete_form.html.twig', { supplier: supplier }) }}
+                            <a class="btn btn-primary" href="{{ path('app_supplier_show', {'id': supplier.id}) }}">
+                                <i class="fa-regular fa-eye"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="3" class="bg-danger text-white bg-opacity-50 text-center py-4">
+                        No suppliers yet.
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

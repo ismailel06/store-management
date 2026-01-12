@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: DejaVu Sans, sans-serif; font-size: 12px; color:#111; }
+    h2 { margin: 0 0 6px; }
+    .muted { color:#666; margin-bottom: 14px; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { border:1px solid #ddd; padding:8px; }
+    th { background:#f5f6f8; text-align:left; }
+  </style>
+</head>
+<body>
+  <h2>Orders Report (Last 7 days)</h2>
+  <div class="muted">Generated: {{ generatedAt|date('Y-m-d H:i') }}</div>
+
+  <table>
+    <thead>
+      <tr><th>ID</th><th>Status</th><th>Total</th><th>Placed at</th></tr>
+    </thead>
+    <tbody>
+      {% for o in orders %}
+        <tr>
+          <td>#{{ o.id }}</td>
+          <td>{{ o.status }}</td>
+          <td>{{ o.totalAmount }}</td>
+          <td>{{ o.createdAt ? o.createdAt|date('Y-m-d H:i') : '' }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="4">No orders.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

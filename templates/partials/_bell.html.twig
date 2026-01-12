@@ -1,0 +1,51 @@
+<div class="dropdown">
+  <a class="text-decoration-none position-relative "
+     href="#"
+     role="button"
+     data-bs-toggle="dropdown"
+     aria-expanded="false">
+
+    <i class="bi bi-bell fs-5" id="notif"></i>
+
+    {# red dot badge (no number) #}
+    {% if pendingCount > 0 %}
+      <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
+        <span class="visually-hidden">New notifications</span>
+      </span>
+    {% endif %}
+  </a>
+
+  <ul class="dropdown-menu dropdown-menu-end shadow" style="min-width: 340px;">
+    <li class="px-3 py-2">
+      <div class="fw-semibold">Notifications</div>
+      <div class="text-muted small">
+        You have <strong>{{ pendingCount }}</strong> new supply request{{ pendingCount == 1 ? '' : 's' }}.
+      </div>
+    </li>
+
+    <li><hr class="dropdown-divider"></li>
+
+    {% for r in latestPending %}
+      <li class="px-3 py-2">
+        <div class="small">
+          A supply of <strong>{{ r.requestedQty }}</strong> units of
+          <strong>{{ r.product.name }}</strong>
+          by <strong>{{ r.supplier.name }}</strong>
+          <span class="badge bg-warning text-dark ms-1">Pending</span>
+        </div>
+        <div class="text-muted small">{{ r.createdAt|date('Y-m-d H:i') }}</div>
+      </li>
+      {% if not loop.last %}<li><hr class="dropdown-divider my-1"></li>{% endif %}
+    {% else %}
+      <li class="px-3 py-2 text-muted small">No new requests.</li>
+    {% endfor %}
+
+    <li><hr class="dropdown-divider"></li>
+
+    <li class="px-3 pb-2">
+      <a class="btn btn-outline-primary btn-sm w-100" href="{{ path('app_supplier_requests') }}">
+        <i class="bi bi-truck me-1"></i> View Supply Requests
+      </a>
+    </li>
+  </ul>
+</div>

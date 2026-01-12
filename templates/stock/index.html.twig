@@ -1,0 +1,138 @@
+{% extends 'base.html.twig' %}
+{% block title %}Stock{% endblock %}
+
+{% block body %}
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card bg-gradient-success" style="height:180px;">
+            <i class="bi bi-check-circle-fill" id="circlefill"></i>
+            <div>
+                <h5>Confirmed Supply</h5>
+                <p class="fs-4"><strong>{{counts.Confirmed}}</strong></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card bg-gradient-warning" style="height:180px;">
+            <i class="bi bi-hourglass-split" id="hourglass"></i>
+            <div>
+                <h5>Pending Supply</h5>
+                <p class="fs-4"><strong>{{counts.Pending}}</strong></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card bg-gradient-danger" style="height:180px;">
+            <i class="bi bi-ban" id="ban"></i>
+            <div>
+                <h5>Rejected Supply</h5>
+                <p class="fs-4"><strong>{{counts.Rejected}}</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="alert alert-{{ label }} mb-3">{{ message }}</div>
+    {% endfor %}
+{% endfor %}
+
+<div class="card mb-4 shadow-sm">
+    <div class="card-header d-flex justify-content-between mb-3 bg-white">
+        <h5>Stock Inventory Elements</h5>
+
+        <div class="d-flex align-items-center gap-3">
+            <div class="input-group w-25 flex-grow-1">
+                <input type="text" placeholder="Search for products" class="form-control" disabled>
+                <button class="btn btn-primary" disabled><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body p-0">
+        <div class="table-responsive bg-white shadow-sm rounded">
+            <table class="table table-hover mb-0">
+                <thead class="table-light text-center">
+                    <tr>
+                        <th>Image</th>
+                        <th>Serial</th>
+                        <th>Name</th>
+                        <th>Quantity</th>
+                        <th>Supplier</th>
+                        <th>Stock</th>
+                        <th>Qte to Buy</th>
+                        <th>Supply status</th>
+                        <th>Request Supply</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for product in products %}
+                    <tr>
+                        <td>
+                            {% if product.imageName %}
+                                <img src="{{ asset('uploads/products/' ~ product.imageName) }}" alt="{{product.name}}"
+                                     style="height:50px;border-radius:10px;width:50px;">
+                            {% else %}
+                            <img src="{{ asset('images/product-placeholder.jpg') }}" alt="{{product.name}}"
+                                     style="height:50px;border-radius:10px;width:50px;">
+                                
+                            {% endif %}
+                        </td>
+                        <td>{{ product.serialNumber }}</td>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.quantity }}</td>
+                        <td>{{ product.supplier.isArchived ? '—' : product.supplier.name }}</td>
+
+                        <td>
+                            {% if product.quantity > 3 %}
+                                <span class="badge bg-success">In Stock</span>
+                            {% elseif product.quantity > 0 %}
+                                <span class="badge bg-warning">Low Stock</span>
+                            {% else %}
+                                <span class="badge bg-danger">Out of Stock</span>
+                            {% endif %}
+                        </td>
+
+                        <td style="max-width:140px;">
+                            <form method="post" action="{{ path('app_stock_request', {id: product.id}) }}" class="d-flex gap-2">
+                                <input type="number" name="requestedQty" class="form-control" min="1" placeholder="ex: 10" required>
+                        </td>
+
+                        <td>
+                            {% set st = latestStatusByProductId[product.id] ?? null %}
+                            {% if st == 'Confirmed' %}
+                                <span class="badge bg-success">Confirmed</span>
+                            {% elseif st == 'Rejected' %}
+                                <span class="badge bg-danger">Rejected</span>
+                            {% elseif st == 'Pending' %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            {% else %}
+                                <span class="badge bg-secondary">None</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                                <button type="submit" class="btn btn-outline-primary" style="font-size:14px;">
+                                    Supply
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="bg-danger text-white bg-opacity-50 text-center">
+                            Stock is empty !
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

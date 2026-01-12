@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+{% block title %}Register{% endblock %}
+
+{% block body %}
+<div class="auth-wrap">
+  <div class="card shadow-sm p-4 p-md-5 auth-card">
+    <div class="text-center mb-4">
+      <div class="auth-logo mb-2">
+        <i class="bi bi-person-plus-fill"></i>
+      </div>
+      <h4 class="mb-1">Create your account</h4>
+      <div class="text-muted">It takes less than a minute</div>
+    </div>
+
+    {{ form_start(registrationForm, {'attr': {'class': 'auth-form'}}) }}
+
+      <div class="mb-3">
+        {{ form_label(registrationForm.email, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control form-control-lg'}}) }}
+        {{ form_errors(registrationForm.email) }}
+      </div>
+
+      <div class="mb-3">
+        {{ form_label(registrationForm.plainPassword, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control form-control-lg'}}) }}
+        {{ form_errors(registrationForm.plainPassword) }}
+      </div>
+
+      {% if registrationForm.agreeTerms is defined %}
+      <div class="mb-3 form-check">
+        {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
+        {{ form_label(registrationForm.agreeTerms, null, {'label_attr': {'class': 'form-check-label'}}) }}
+        {{ form_errors(registrationForm.agreeTerms) }}
+      </div>
+      {% endif %}
+
+      <button class="btn btn-primary w-100 btn-lg" type="submit">
+        <i class="bi bi-person-check me-1"></i> Create account
+      </button>
+
+      <div class="text-center mt-3">
+        <a class="small text-decoration-none" href="{{ path('app_login') }}">Already have an account? Login</a>
+      </div>
+
+    {{ form_end(registrationForm) }}
+  </div>
+</div>
+{% endblock %}

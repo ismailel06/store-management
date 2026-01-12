@@ -1,0 +1,245 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Reports{% endblock %}
+{% block stylesheets %}
+  /* Enhanced Reports Styling */
+.card {
+  border-radius: 16px;
+}
+
+.table {
+  border-radius: 8px;
+}
+
+.table thead {
+  background-color: #f1f1f1;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f1f1f177;
+}
+
+.table-light {
+  background-color: #f8f9fa;
+}
+
+.mb-3 {
+  margin-bottom: 1rem;
+}
+
+.mb-4 {
+  margin-bottom: 2rem;
+}
+
+.table td, .table th {
+  vertical-align: middle;
+}
+
+.btn-outline-primary, .btn-outline-danger, .btn-outline-secondary {
+  font-size: 0.875rem;
+  border-radius: 10px;
+}
+
+.card-header h5, .card-body h6 {
+  font-weight: 600;
+}
+
+.success-table tr td {
+  padding: 10px;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.text-muted {
+  color: #6c757d;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.badge {
+  font-size: 0.875rem;
+}
+
+.text-muted {
+  font-size: 0.875rem;
+}
+
+.d-flex {
+  display: flex;
+}
+
+.gap-3 {
+  gap: 1rem;
+}
+
+{% endblock %}
+
+{% block body %}
+<div class="container">
+  <!-- Stock Reports Section -->
+  <div class="card shadow-sm p-4 mb-4">
+    <h5 class="mb-3">Stock Reports</h5>
+
+    <!-- Export Stock Button -->
+
+    <!-- Low Stock Table -->
+    <h6 class="mb-2">Low Stock (1–3 items)</h6>
+    <div class="table-responsive bg-white shadow-sm rounded mb-4">
+      <table class="table table-hover">
+        <thead class="table-light">
+          <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Supplier</th>
+            <th>Quantity</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for product in lowStock %}
+            <tr>
+              <td>{{ product.name }}</td>
+              <td>{{ product.category }}</td>
+              <td>{{ product.supplier.name }}</td>
+              <td>{{ product.quantity }}</td>
+              <td>${{ product.price }}</td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="5" class="text-center text-muted">No low stock products.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Out of Stock Table -->
+    <h6 class="mb-2">Out of Stock (0 items)</h6>
+    <div class="table-responsive bg-white shadow-sm rounded mb-4">
+      <table class="table table-hover">
+        <thead class="table-light">
+          <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Supplier</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for product in outOfStock %}
+            <tr>
+              <td>{{ product.name }}</td>
+              <td>{{ product.category }}</td>
+              <td>{{ product.supplier.name }}</td>
+              <td>${{ product.price }}</td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="4" class="text-center text-muted">No products are out of stock.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="mb-3 d-flex justify-content-start gap-3">
+      <a href="{{ path('app_reports_export_stock') }}" class="btn btn-outline-primary">
+        <i class="fa-solid fa-file-csv me-2"></i> Export Stock (CSV)
+      </a>
+      <a href="{{ path('app_reports_export_stock_pdf') }}" class="btn btn-outline-danger">
+        <i class="fa-solid fa-file-pdf me-2"></i> Export Stock (PDF)
+      </a>
+      <a href="{{ path('app_reports_export_stock_txt') }}" class="btn btn-outline-secondary">
+        <i class="fa-solid fa-file-alt me-2"></i> Export Stock (TXT)
+      </a>
+    </div>
+  </div>
+
+  <!-- Activities Report Section -->
+  <div class="card shadow-sm p-4 mb-4">
+  <h5 class="mb-3">Recent Activities (Last 7 Days)</h5>
+  <div class="card shadow-sm p-4 mb-4">
+    
+    <h6 class="mb-2">Supply Requests</h6>
+    <div class="table-responsive bg-white shadow-sm rounded mb-4">
+      <table class="table table-hover">
+        <thead class="table-light">
+          <tr>
+            <th>Product</th>
+            <th>Supplier</th>
+            <th>Status</th>
+            <th>Requested At</th>
+            <th>Updated At</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for request in recentSupply %}
+            <tr>
+              <td>{{ request.product.name }}</td>
+              <td>{{ request.supplier.name }}</td>
+              <td>{{ request.status }}</td>
+              <td>{{ request.createdAt|date('Y-m-d H:i') }}</td>
+              <td>{{ request.updatedAt|date('Y-m-d H:i') }}</td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="5" class="text-center text-muted">No recent supply requests.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="mb-3 d-flex justify-content-start gap-3">
+        <a href="{{ path('app_reports_export_activities_pdf') }}" class="btn btn-outline-danger">
+          <i class="fa-solid fa-file-pdf me-2"></i> Export Supply Requests (PDF)
+        </a>
+        <a href="{{ path('app_reports_export_activities_txt') }}" class="btn btn-outline-secondary">
+          <i class="fa-solid fa-file-alt me-2"></i> Export Supply Requests (TXT)
+        </a>
+      </div>
+  </div>
+
+  <div class="card shadow-sm p-4 mb-4">
+    <h6 class="mb-2">Orders</h6>
+    <div class="table-responsive bg-white shadow-sm rounded mb-4">
+      <table class="table table-hover">
+        <thead class="table-light">
+          <tr>
+            <th>Order ID</th>
+            <th>Total Amount</th>
+            <th>Status</th>
+            <th>Placed At</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in recentOrders %}
+            <tr>
+              <td>{{ order.id }}</td>
+              <td>${{ order.totalAmount|number_format(2, '.', ',') }}</td>
+              <td>{{ order.status }}</td>
+              <td>{{ order.createdAt|date('Y-m-d H:i') }}</td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="4" class="text-center text-muted">No recent orders.</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="mb-3 d-flex justify-content-start gap-3">
+      <a href="{{ path('app_reports_export_orders_pdf') }}" class="btn btn-outline-danger">
+        <i class="fa-solid fa-file-pdf me-2"></i> Export Orders (PDF)
+      </a>
+      <a href="{{ path('app_reports_export_orders_txt') }}" class="btn btn-outline-secondary">
+        <i class="fa-solid fa-file-alt me-2"></i> Export Orders (TXT)
+      </a>
+    </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

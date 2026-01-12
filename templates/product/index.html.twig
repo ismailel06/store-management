@@ -1,0 +1,157 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Products{% endblock %}
+
+{% block body %}
+
+<div class="row g-4 mb-4">
+    <div class="col-md-12">
+        <div class="card shadow-sm p-4">
+            <h5 class="text-center">Products Pricing Overview</h5>
+            <div style="height:400px;">
+                <canvas id="pricingChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4 shadow-sm">
+    <div class="card-header d-flex justify-content-between mb-3 bg-white">
+        <h5>Products List</h5>
+
+        <div class="d-flex align-items-center gap-3">
+
+            <a class="btn btn-primary" href="{{ path('app_product_new') }}">
+                <i class="fas fa-plus"></i> Add Product
+            </a>
+
+            <form class="input-group w-25 flex-grow-1" method="get" action="{{ path('app_product_index') }}">
+                <input type="text" name="q" value="{{ q|default('') }}" placeholder="Search for products" class="form-control">
+                <button class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </form>
+
+            <form method="get" action="{{ path('app_product_index') }}">
+                <input type="hidden" name="q" value="{{ q|default('') }}">
+
+                <select class="form-select w-auto" name="sort" onchange="this.form.submit()">
+                    <option value="createdAt" {{ sort|default('createdAt') == 'createdAt' ? 'selected' : '' }}>By Added Time</option>
+                    <option value="updatedAt" {{ sort|default('createdAt') == 'updatedAt' ? 'selected' : '' }}>By Updated Time</option>
+                    <option value="name" {{ sort|default('createdAt') == 'name' ? 'selected' : '' }}>By Name</option>
+                    <option value="price" {{ sort|default('createdAt') == 'price' ? 'selected' : '' }}>By Price</option>
+                </select>
+            </form>
+
+        </div>
+    </div>
+
+    <div class="card-body p-0">
+        <div class="table-responsive bg-white shadow-sm rounded">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Image</th>
+                        <th>Serial</th>
+                        <th>Id</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Supplier</th>
+                        <th>Status</th>
+                        <th>Added At</th>
+                        <th>Modified At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for product in products %}
+                    <tr>
+                        <td>
+                            {% if product.imageName %}
+                                <img src="{{ asset('uploads/products/' ~ product.imageName) }}" alt=""
+                                     style="height:50px;border-radius:10px;width:50px;">
+                            {% else %}
+                                <img src="{{ asset('images/product-placeholder.jpg') }}" alt=""
+                                     style="height:50px;border-radius:10px;width:50px;">
+                            {% endif %}
+                        </td>
+
+                        <td>{{ product.serialNumber }}</td>
+                        <td>{{ product.id }}</td>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.category }}</td>
+                        <td>{{ product.price }}</td>
+                        <td>{{ product.supplier.isArchived ? '—'  : product.supplier.name }}</td>
+
+                        <td>
+                            {% if product.quantity > 3 %}
+                                <span class="badge bg-success">In Stock</span>
+                            {% elseif product.quantity > 0 %}
+                                <span class="badge bg-warning">Low Stock</span>
+                            {% else %}
+                                <span class="badge bg-danger">Out of Stock</span>
+                            {% endif %}
+                        </td>
+
+                        <td>{{ product.createdAt ? product.createdAt|date('Y-m-d') : '—' }}</td>
+                        <td>{{ product.updatedAt ? product.updatedAt|date('Y-m-d') : '—' }}</td>
+
+                        <td>
+                            <div class="btn" role="group" aria-label="actions">
+                                <a class="btn btn-warning" href="{{ path('app_product_edit', {id: product.id}) }}">
+                                    <i class="fas fa-pen-to-square"></i>
+                                </a>
+
+                                {{ include('product/_delete_form.html.twig', { product: product }) }}
+
+                                <a class="btn btn-primary" href="{{ path('app_product_show' , {id: product.id}) }}">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="11" class="bg-danger text-white bg-opacity-50 text-center">
+                            No products available !
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+  const priceLabels = {{ priceChart.labels|json_encode|raw }};
+  const priceValues = {{ priceChart.values|json_encode|raw }};
+
+  new Chart(document.getElementById('pricingChart'), {
+    type: 'bar',
+    data: {
+      labels: priceLabels,
+      datasets: [{
+        label: 'Price ($)',
+        data: priceValues
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true, position: 'bottom' },
+        tooltip: { enabled: true }
+      },
+      scales: {
+        y: { beginAtZero: true },
+        x: { ticks: { autoSkip: true, maxRotation: 0 } }
+      }
+    }
+  });
+</script>
+{% endblock %}

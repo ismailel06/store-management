@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+{% block title %}Order Success{% endblock %}
+
+{% block body %}
+
+<div class="success-wrap">
+  <div class="card shadow-sm p-4 p-md-5 success-card">
+    <div class="success-icon mb-3">
+      <i class="bi bi-check2"></i>
+    </div>
+
+    <h4 class="mb-1">Order confirmed</h4>
+    <div class="text-muted mb-4">
+      Thanks! Your order has been placed successfully.
+    </div>
+
+    <div class="success-info rounded p-3 p-md-4 mb-4">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="text-muted small">Order ID</div>
+          <div class="fw-semibold">#{{ order.id }}</div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="text-muted small">Status</div>
+          <div class="fw-semibold">
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+              {{ order.status|default('Paid') }}
+            </span>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="text-muted small">Placed at</div>
+          <div class="fw-semibold">
+            {{ order.createdAt ? order.createdAt|date('Y-m-d H:i') : '—' }}
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="text-muted small">Total</div>
+          <div class="fw-semibold">
+            ${{ order.totalAmount is defined ? order.totalAmount|number_format(2, '.', ',') : '0.00' }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex flex-column flex-sm-row gap-2 justify-content-center">
+      <a class="btn btn-primary px-4" href="{{ path('app_shop_index') }}">
+        <i class="bi bi-bag me-1"></i> Continue shopping
+      </a>
+
+      <a class="btn btn-outline-secondary px-4" href="{{ path('app_cart_index') }}">
+        <i class="bi bi-receipt me-1"></i> View cart
+      </a>
+    </div>
+
+    <div class="text-muted small mt-4">
+      Tip: keep your order ID for support requests.
+    </div>
+  </div>
+</div>
+
+{% endblock %}

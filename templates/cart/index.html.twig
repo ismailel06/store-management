@@ -1,0 +1,150 @@
+{% extends 'base.html.twig' %}
+{% block title %}Cart{% endblock %}
+
+{% block body %}
+
+{% for label, messages in app.flashes %}
+  {% for message in messages %}
+    <div class="alert alert-{{ label }} mb-3">{{ message }}</div>
+  {% endfor %}
+{% endfor %}
+
+<div class="row g-4">
+  <!-- Cart items -->
+  <div class="col-lg-8">
+    <div class="card shadow-sm p-4 cart-card">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h5 class="mb-0">Your Cart</h5>
+          <div class="text-muted small">
+            Review your items before checkout.
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_shop_index') }}">
+            <i class="fa-solid fa-arrow-left me-1"></i> Continue shopping
+          </a>
+
+          <form method="post" action="{{ path('app_cart_clear') }}">
+            <button class="btn btn-outline-danger btn-sm" type="submit">
+              <i class="fa-solid fa-trash me-1"></i> Clear cart
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {% if items is empty %}
+        <div class="cart-empty text-center p-5">
+          <div class="cart-empty-icon mb-3">
+            <i class="bi bi-cart3"></i>
+          </div>
+          <h6 class="mb-1">Your cart is empty</h6>
+          <div class="text-muted mb-3">Browse the shop and add your first product.</div>
+          <a class="btn btn-primary" href="{{ path('app_shop_index') }}">
+            <i class="bi bi-bag me-1"></i> Go to shop
+          </a>
+        </div>
+      {% else %}
+        <div class="table-responsive bg-white shadow-sm rounded cart-table">
+          <table class="table mb-0 align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Product</th>
+                <th style="width:120px;" class="text-center">Qty</th>
+                <th style="width:140px;" class="text-center">Unit</th>
+                <th style="width:140px;" class="text-center">Total</th>
+                <th style="width:90px;" class="text-center">Remove</th>
+              </tr>
+            </thead>
+
+            <tbody>
+            {% for item in items %}
+              {% set imgPath = item.product.imageName
+                ? asset('uploads/products/' ~ item.product.imageName)
+                : asset('images/product-placeholder.jpg')
+              %}
+
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center gap-3">
+                    <img src="{{ imgPath }}" alt="{{ item.product.name }}" class="cart-img">
+
+                    <div class="min-w-0">
+                      <div class="fw-semibold text-truncate">{{ item.product.name }}</div>
+                      <div class="text-muted small text-truncate">{{ item.product.category }}</div>
+                      <div class="text-muted small">
+                        <span class="badge bg-light text-dark border">#{{ item.product.serialNumber }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="text-center">
+                  <span class="qty-pill">{{ item.qty }}</span>
+                </td>
+
+                <td class="text-center">
+                  <span class="text-muted">$</span>{{ item.product.price }}
+                </td>
+
+                <td class="text-center fw-semibold">
+                  ${{ item.lineTotal|number_format(2, '.', ',') }}
+                </td>
+
+                <td class="text-center">
+                  <form method="post" action="{{ path('app_cart_remove', {id: item.product.id}) }}">
+                    <button class="btn btn-outline-danger btn-sm" type="submit" title="Remove">
+                      <i class="fa-solid fa-xmark"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="col-lg-4">
+    <div class="card shadow-sm p-4 cart-summary">
+      <h6 class="mb-3">Order Summary</h6>
+
+      <div class="d-flex justify-content-between mb-2">
+        <div class="text-muted">Subtotal</div>
+        <div class="fw-semibold">${{ total|number_format(2, '.', ',') }}</div>
+      </div>
+
+      <div class="d-flex justify-content-between mb-2">
+        <div class="text-muted">Shipping</div>
+        <div class="fw-semibold">$0.00</div>
+      </div>
+
+      <div class="d-flex justify-content-between mb-3">
+        <div class="text-muted">Tax</div>
+        <div class="fw-semibold">$0.00</div>
+      </div>
+
+      <hr class="my-3">
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="fw-semibold">Total</div>
+        <div class="fw-bold fs-5">${{ total|number_format(2, '.', ',') }}</div>
+      </div>
+
+      <a class="btn btn-primary w-100 {% if items is empty %}disabled{% endif %}" href="{{ path('app_checkout') }}">
+        <i class="bi bi-credit-card me-1"></i> Checkout
+      </a>
+
+      <div class="text-muted small mt-3">
+        <i class="bi bi-shield-check me-1"></i>
+        Secure checkout — your data stays protected.
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
